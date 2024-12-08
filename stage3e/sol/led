@@ -1,0 +1,30 @@
+
+const int ledPin = 3;
+int x = 0;
+bool augmenter = true;
+
+void setup() {
+  // initialize the LED pin as an output:
+  pinMode(ledPin, OUTPUT);
+}
+
+void loop() {
+
+  if (augmenter)
+  {
+    analogWrite(ledPin, x++);
+  }
+  else 
+  {
+    analogWrite(ledPin, x--);
+  }
+  if (x == 255)
+  {
+    augmenter = false;
+  }
+  else if (x == 0)
+  {
+    augmenter = true;
+  }
+  delay(10);
+}
