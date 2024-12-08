@@ -1,0 +1,86 @@
+#include <Arduino.h>
+
+// Définition des broches de contrôle des moteurs
+// DROITE = A
+// Définir une constante DIRECTION_MOTEUR_DROITE qui vaut 12
+// Définir une constante VITESSE_MOTEUR_DROITE qui vaut 3
+// Définir une constante FREIN_MOTEUR_DROITE qui vaut 9
+
+// GAUCHE = B
+// Définir une constante DIRECTION_MOTEUR_GAUCHE qui vaut 13
+// Définir une constante VITESSE_MOTEUR_GAUCHE qui vaut 11
+// Définir une constante FREIN_MOTEUR_GAUCHE qui vaut 8
+
+// Définir une fonction pour stopper le moteur gauche : stop_moteur_gauche
+// Elle doit écrire sur la broche VITESSE_MOTEUR_GAUCHE une vitesse nulle (analogWrite, 0)
+// Elle doit écrire sur la broche FREIN_MOTEUR_GAUCHE un freinage (digitalWrite, HIGH)
+
+// Définir une fonction pour stopper le moteur droit : stop_moteur_droite
+// Elle doit écrire sur la broche VITESSE_MOTEUR_DROITE une vitesse nulle (analogWrite, 0)
+// Elle doit écrire sur la broche FREIN_MOTEUR_DROITE un freinage (digitalWrite, HIGH)
+
+// Définir une fonction pour stopper les deux moteurs : stop()
+
+// Définir une fonction pour faire avancer le moteur gauche : avancer_moteur_gauche
+// Elle doit écrire sur la broche DIRECTION_MOTEUR_GAUCHE une direction (digitalWrite, LOW ou HIGH)
+// Elle doit écrire sur la broche VITESSE_MOTEUR_GAUCHE une vitesse (analogWrite, vitesse entre 0 et 255)
+// Elle doit écrire sur la broche FREIN_MOTEUR_GAUCHE de ne pas freiner (digitalWrite, LOW)
+
+// Définir une fonction pour faire avancer le moteur droit : avancer_moteur_droite
+// Elle doit écrire sur la broche DIRECTION_MOTEUR_DROITE une direction (digitalWrite, LOW ou HIGH)
+// Elle doit écrire sur la broche VITESSE_MOTEUR_DROITE une vitesse (analogWrite, vitesse entre 0 et 255)
+// Elle doit écrire sur la broche FREIN_MOTEUR_DROITE de ne pas freiner (digitalWrite, LOW)
+
+// Définir une fonction pour avancer : avancer()
+
+// Si on a le temps : définir une fonction pour avancer vers la gauche : avancer_gauche()
+// Si on a le temps : définir une fonction pour avancer vers la droite : avancer_droite()
+
+// Définir une fonction pour faire reculer le moteur gauche : reculer_moteur_gauche
+// Elle doit écrire sur la broche DIRECTION_MOTEUR_GAUCHE une direction (digitalWrite, LOW ou HIGH)
+// Elle doit écrire sur la broche VITESSE_MOTEUR_GAUCHE une vitesse (analogWrite, vitesse entre 0 et 255)
+// Elle doit écrire sur la broche FREIN_MOTEUR_GAUCHE de ne pas freiner (digitalWrite, LOW)
+
+// Définir une fonction pour faire reculer le moteur droit : reculer_moteur_droite
+// Elle doit écrire sur la broche DIRECTION_MOTEUR_DROITE une direction (digitalWrite, LOW ou HIGH)
+// Elle doit écrire sur la broche VITESSE_MOTEUR_DROITE une vitesse (analogWrite, vitesse entre 0 et 255)
+// Elle doit écrire sur la broche FREIN_MOTEUR_DROITE de ne pas freiner (digitalWrite, LOW)
+
+// Définir une fonction pour reculer : reculer()
+
+// Si on a le temps : définir une fonction pour reculer vers la gauche : reculer_gauche()
+// Si on a le temps : définir une fonction pour reculer vers la droite : reculer_droite()
+
+// Définir une fonction pour tourner à gauche : tourner_gauche()
+// Elle doit appeler la fonction avancer_moteur_droite avec une vitesse
+// Elle doit appeler la fonction reculer_moteur_gauche avec une vitesse
+
+// Définir une fonction pour tourner à droite : tourner_droite()
+// Elle doit appeler la fonction avancer_moteur_gauche avec une vitesse
+// Elle doit appeler la fonction reculer_moteur_droite avec une vitesse
+
+// Fonction d'initialisation de la carte Arduino
+void setup() {
+  // Définir la vitesse de communication de la carte Arduino (Serial.begin, 115200)
+
+  // Initialiser les broches de contrôle des moteurs en sortie
+
+  // Attendre 5 secondes (delay, 5000)
+}
+
+// Fonction de boucle de la carte Arduino
+void loop() {
+  
+  // Faire avancer le robot tout droit pendant une seconde
+
+  // Tourner à gauche pendant 0.5 seconde
+
+  // Tourner à droite pendant 0.5 seconde
+
+  // Avancer pendant 1 seconde
+
+  // Tourner à gauche pendant 0.5 seconde
+
+  // Faire reculer le robot tout droit pendant une seconde
+
+}

@@ -1,0 +1,6 @@
+{
+  "files.associations": {
+    "*.ejs": "html",
+    "programmer_emetteur": "cpp"
+  }
+}

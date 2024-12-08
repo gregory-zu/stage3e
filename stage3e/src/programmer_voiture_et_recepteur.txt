@@ -1,0 +1,86 @@
+#include <Arduino.h>
+#include <VirtualWire.h>
+
+#define PinDeReception 					          2
+#define VitesseDeReception 				        2000        
+
+/* on doit retrouver le code écrit dans l'exercice précédent pour le contôle de la voiture*/
+
+// Calculer et définir la résistance appropriée pour le récepteur radio à l'aide de la documentation
+// à l'aide de la loi d'ohm.
+// U = R * I
+// R = U / I
+// Trouver l'information d'intensité dans la documentation du récepteur radio
+// La tension est de 5V.
+// Calculer La puissance que la résistance doit dissiper : P = U * I. En 2 étapes:
+//    - Calculer l'intensité réelle avec la résistance choisie. U = R(choisie avant) * I
+//    - On peut maintenant calculer la puissance dissipée par la résistance : P = U * I
+
+
+/*Il nous faut un pointeur car la fonction vw_send de la librairie virtualwire
+l'exige. En C, un tableau est un pointeur*/
+uint8_t ordre[1];
+uint8_t longueurOrdre = 1;
+
+// Fonction d'initialisation de la carte Arduino
+void setup() {
+  // Définir la vitesse de communication de la carte Arduino (Serial.begin, 115200)
+
+  // Initialiser les broches de contrôle des moteurs en sortie
+
+  // --Initialiser la broche de lecture des données du récépteur radio en entrée
+  vw_set_rx_pin(PinDeReception);
+
+  // -- Définir la vitesse de transmission des données du récépteur radio
+  vw_setup(VitesseDeReception);
+
+  // -- Démarrer la récéption des données du récépteur radio
+  vw_rx_start();
+}
+
+
+// Fonction de boucle de la carte Arduino
+void loop() {
+  
+  // --Commenter tout le code de déplacement du robot.
+
+  // --Vérifier si un message a été reçu
+  // la librairie virtualwire nous permet de vérifier si un message a été reçu
+  // en utilisant la fonction vw_get_message qui retourne 0 si aucun message n'a été reçu
+  // et la longueur du message si un message a été reçu
+  // On a définit la longueur du message plus haut, au début du code. On a aussi définit
+  // la variable qui va contenir le message reçu. 
+  // La fonction vw_get_message prend en paramètre le tableau qui va contenir le message
+  // et la longueur du message.
+  // Complèter cet appel : vw_get_message(?, &longueurOrdre);
+
+  // -- Imprimer le message sur le moniteur série (Serial.print, ordre[0])
+
+  // STOP ici.
+
+  // -- ETAPE 2 : Reprendre le protocole définit côté nunshuck pour contrôler le robot
+
+  int speed = 200; // Vitesse de déplacement du robot
+   // Faire un switch sur la valeur du message reçu (ordre[0]) pour définir les actions à effectuer
+  /*
+    switch(?) {
+      case ?:
+        // action
+        break;
+       case ?:
+        // action
+        break;
+       case ?:
+        // action
+        break;
+       case ?:
+        // action
+        break;
+       case ?:
+        // action
+        break;
+  */
+  // -- Est-ce suffisant ? que se passe-t-il quand on ne reçoit rien?
+ 
+
+}

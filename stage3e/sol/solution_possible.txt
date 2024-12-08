@@ -1,0 +1,383 @@
+#include <Arduino.h>
+#include <VirtualWire.h>
+
+
+#define VitesseSerie                    115200
+#define ConfigurePortSerie              Serial.begin(VitesseSerie)
+
+#define VitesseDeTransmission 	        2000
+#define DefinitVitesseDeTransmission  	vw_setup(VitesseDeTransmission)
+//#define Voiture						            0x20
+#define Voiture							            0x40
+
+
+
+#define AVANT  							  0x41 
+#define AVANTGAUCHE						0x49
+#define AVANTDROITE						0x45
+#define GAUCHE							  0x48
+#define DROITE							  0x44
+#define ARRIERE							  0x42
+#define ARRIEREGAUCHE					0x4A
+#define ARRIEREDROITE					0x46
+#define AVANTETTIRE						0x51
+#define AVANTGAUCHEETTIRE			0x59
+#define AVANTDROITEETTIRE			0x55
+#define GAUCHEETTIRE					0x58
+#define DROITEETTIRE 					0x54
+#define ARRIEREETTIRE					0x52
+#define ARRIEREGAUCHEETTIRE		0x5A
+#define ARRIEREDROITEETTIRE		0x56
+#define TIRE							    0x50
+
+/*il me faut un pointeur car la fonction vw_send de la librairie virtualwire
+l'exige. En C, un tableau... ba c'est un pointeur*/
+uint8_t ordre[1];
+uint8_t longueurOrdre = 1;
+
+#define VOITURE
+// #define NUNCHUK
+
+#ifdef NUNCHUK
+/*
+R emetteur:
+5V = R*0.025
+R  = 5/0.025
+R  = 200 Ohm
+Mais j'ai pas de 200 Ohm, donc je prends 220 Ohm
+La puissance à dissiper est de 0.125W
+Je prends donc une résistance de 0.25W
+U = 220 * I
+I = 5 / 220
+I = 0.0227 A on est en dessous des 0.025A, c'est bon
+Puissance: 
+P = U * I
+P = 5 * 0.0227
+P = 0.1135 W : 1/2 W irait... mais je n'ai que des 1W... c'est bon aussi.
+*/
+
+
+#include "WiiChuck.h"
+
+#define BonjourNunchuck           chuck.begin()
+#define CalibrationDuJoystick     chuck.calibrateJoy()
+#define EcouteNunchuck            chuck.update()
+#define ValeurGaucheDroite        chuck.readJoyX()
+#define ValeurAvantArriere        chuck.readJoyY()
+
+#define PinDeTransmission         5
+#define DefinitPinDeTransmission 	vw_set_tx_pin(PinDeTransmission)
+#define AttendsFinTransmission 		vw_wait_tx()
+#define Transmets					        vw_send
+
+const int PIN_EMETTEUR_DATA       = 5;
+
+const int VALEUR_JOYSTICK_REF     = 9;
+
+
+/*
+Nunckuck:
+GND va sur A2
+VCC va sur A3
+
+SDA va sur A4
+SCL va sur A5
+*/
+WiiChuck chuck = WiiChuck();
+
+void setup() {
+  ConfigurePortSerie;
+  BonjourNunchuck;
+  DefinitPinDeTransmission;
+  DefinitVitesseDeTransmission;
+
+  delay(5000);
+}
+
+
+// récupère les valeurs du nunchuck et les converti en ordre[0] 
+// comme définit dans notre protocole perso.
+// Pour ça, j'utilise les propriétés du OU logique : ce symbole '|' en C.
+unsigned ecouteNunchuck()
+{
+	// dans mon petit protocole, ordre[0] ne peut pas valoir 0x00
+	// si à la fin de cette fonction, ordre[0] vaut toujours 0x00
+	// c'est que le joueur ne touche pas au nunchuck
+	ordre[0] = 0x00;
+	EcouteNunchuck;
+	Serial.print("X: ");
+  Serial.println(ValeurGaucheDroite);
+  Serial.print("Y: ");
+  Serial.println(ValeurAvantArriere);
+	if (ValeurGaucheDroite > VALEUR_JOYSTICK_REF)
+	{
+		//droite = 0000 0100
+		ordre[0] = DROITE;
+	}
+	else if(ValeurGaucheDroite < VALEUR_JOYSTICK_REF * -1)
+	{
+		//gauche =  0000 1000
+		ordre[0] =  GAUCHE;
+	}
+	if (ValeurAvantArriere > VALEUR_JOYSTICK_REF)
+	{
+		// avant = 0000 0001
+		ordre[0] = ordre[0] | AVANT;
+	}
+	else if (ValeurAvantArriere < VALEUR_JOYSTICK_REF * -1)
+	{
+		//arriere= 0000 0010
+		ordre[0] = ordre[0] | ARRIERE;
+  }
+  return ordre[0];
+}
+
+void loop() 
+{
+  ecouteNunchuck();
+  // si ordre[0] il y a
+  // delay(500);
+	if (ordre[0] != 0x00)
+	{
+		// enfin ici je spécifie la télécommande de quelle voiture je suis:
+		ordre[0] = ordre[0] | Voiture;
+		//* debugg
+		Serial.println("envoie : ");
+		Serial.println(ordre[0],HEX); // affichage en hexadécimal
+		Serial.println(ordre[0],BIN); // affichage en binaire
+		//*/
+		// je donne l'ordre à transmettre et sa taille en octet.. moi c'est 1, et c'est toujours 1
+		// l'exemple de la librairie indique strlen(message), mais c'est appeler une fonction
+		// pour rien dans mon cas.
+		Transmets((uint8_t *)ordre, 1);
+		AttendsFinTransmission;
+	}
+
+}
+
+
+#endif
+
+// =======================================================================
+#ifdef VOITURE
+
+
+/*
+R récépteur:
+5V = R * 0.0028
+R = 5 / 0.0028
+R = 1785.71 Ohm
+J'ai du 1.8k Ohm, c'est bon
+La puissance à dissiper est de:
+5 = 1800 * I
+I = 5 / 1800
+I = 0.0027 A
+P = U * I
+P = 5 * 0.0027
+P = 0.0135 W
+J'ai 0.5 W, c'est bon
+*/
+#define PinDeReception 					          2
+#define DefinitPinDeReception			        vw_set_rx_pin(PinDeReception)
+#define VitesseDeReception 				        2000
+#define DefinitVitesseDeReception 		    vw_setup(VitesseDeReception)
+#define DemarreReception				          vw_rx_start()
+//attention, bloquant
+#define AttendsFinTransmission   			    vw_wait_rx()
+#define YaUnMessage						            vw_get_message(ordre, &longueurOrdre)
+#define StopReception					            vw_rx_stop()
+#define Delais					              		delay(10)
+
+
+const int PIN_RECEPTEUR_DATA      = 2;
+
+
+// DROITE = A
+const int DIRECTION_MOTEUR_DROITE = 12;
+const int VITESSE_MOTEUR_DROITE   = 3;
+const int FREIN_MOTEUR_DROITE     = 9;
+
+// GAUCHE = B
+const int DIRECTION_MOTEUR_GAUCHE = 13;
+const int VITESSE_MOTEUR_GAUCHE   = 11;
+const int FREIN_MOTEUR_GAUCHE     = 8;
+
+
+
+void stop_moteur_gauche()
+{
+  analogWrite(VITESSE_MOTEUR_GAUCHE, 0);
+  digitalWrite(FREIN_MOTEUR_GAUCHE, HIGH);
+}
+
+void stop_moteur_droite()
+{
+  analogWrite(VITESSE_MOTEUR_DROITE, 0);
+  digitalWrite(FREIN_MOTEUR_DROITE, HIGH);
+}
+
+void stop()
+{
+  stop_moteur_gauche();
+  stop_moteur_droite();
+}
+
+void avancer_moteur_gauche(int vitesse)
+{
+  analogWrite(VITESSE_MOTEUR_GAUCHE, vitesse);
+  digitalWrite(DIRECTION_MOTEUR_GAUCHE, LOW);
+  digitalWrite(FREIN_MOTEUR_GAUCHE, LOW);
+}
+
+void avancer_moteur_droite(int vitesse)
+{
+  analogWrite(VITESSE_MOTEUR_DROITE, vitesse);
+  digitalWrite(DIRECTION_MOTEUR_DROITE, HIGH);
+  digitalWrite(FREIN_MOTEUR_DROITE, LOW);
+}
+
+void avancer(int vitesse)
+{
+  avancer_moteur_gauche(vitesse);
+  avancer_moteur_droite(vitesse);
+}
+
+void avancer_droite()
+{
+  avancer_moteur_gauche(220);
+  avancer_moteur_droite(190);
+}
+
+void avancer_gauche()
+{
+  avancer_moteur_gauche(190);
+  avancer_moteur_droite(220);
+}
+
+void reculer_moteur_gauche(int vitesse)
+{
+  analogWrite(VITESSE_MOTEUR_GAUCHE, vitesse);
+  digitalWrite(DIRECTION_MOTEUR_GAUCHE, HIGH);
+  digitalWrite(FREIN_MOTEUR_GAUCHE, LOW);
+}
+
+void reculer_moteur_droite(int vitesse)
+{
+  analogWrite(VITESSE_MOTEUR_DROITE, vitesse);
+  digitalWrite(DIRECTION_MOTEUR_DROITE, LOW);
+  digitalWrite(FREIN_MOTEUR_DROITE, LOW);
+}
+
+void reculer(int vitesse)
+{
+  reculer_moteur_gauche(vitesse);
+  reculer_moteur_droite(vitesse);
+}
+
+void reculer_gauche()
+{
+  reculer_moteur_gauche(160);
+  reculer_moteur_droite(220);
+}
+
+void reculer_droite()
+{
+  reculer_moteur_gauche(220);
+  reculer_moteur_droite(160);
+}
+
+void tournerGauche(int vitesse_gauche, int vitesse_droite)
+{
+  avancer_moteur_droite(vitesse_gauche);
+  reculer_moteur_gauche(vitesse_droite);
+}
+
+void tournerDroite(int vitesse_gauche, int vitesse_droite)
+{
+  avancer_moteur_gauche(vitesse_gauche);
+  reculer_moteur_droite(vitesse_droite);
+}
+
+void setup() {
+  ConfigurePortSerie;
+  pinMode(DIRECTION_MOTEUR_GAUCHE,  OUTPUT);
+  pinMode(VITESSE_MOTEUR_GAUCHE,    OUTPUT);
+  pinMode(FREIN_MOTEUR_GAUCHE,      OUTPUT);
+
+  pinMode(DIRECTION_MOTEUR_DROITE,  OUTPUT);
+  pinMode(VITESSE_MOTEUR_DROITE,    OUTPUT);
+  pinMode(FREIN_MOTEUR_DROITE,      OUTPUT);
+
+  DefinitPinDeReception;
+  DefinitVitesseDeReception;
+  DemarreReception;
+
+  delay(5000);
+}
+
+bool state = false;
+
+void loop() {
+  // je récupère les messages RF envoyés par le joueur
+	if (YaUnMessage) // Ca retourne vrai y a un message correctement reçu, faux sinon
+  {
+		Serial.println(ordre[0], HEX);
+		Serial.println(ordre[0], BIN);
+		// test de voiture
+		// si ca me concerne, moi la voiture 2, le quartet de poids le plus fort ressemble à ça 
+		// 0100 , donc sur l'octet complet j'ai 0100 0000 (peut importe la valeur des autres bit)
+		// Pour déterminer si le message reçu s'adresse à moi, il faut que dans le message
+		// le septième bit (en partant de la gauche) de mon octet soit à 1.
+    int speed = 200;
+		if (ordre[0] & (1u << 6))
+		{
+			Serial.println("ca me concerne ");
+			switch(ordre[0])
+			{
+				case AVANT :
+					avancer(speed);
+					Delais;
+					break;
+				case AVANTGAUCHE :
+					avancer_gauche();
+					Delais;
+					break;
+				case AVANTDROITE :
+					avancer_droite();
+					Delais;
+					break;
+				case GAUCHE :
+					tournerGauche(speed, speed);
+					Delais;
+					break;
+				case DROITE :
+					tournerDroite(speed, speed);
+					Delais;
+					break;
+				case ARRIERE :
+					reculer(speed);
+					Delais;
+					break;
+				case ARRIEREGAUCHE :
+					reculer_gauche();
+					Delais;
+					break;
+				case ARRIEREDROITE :
+					reculer_droite();
+					Delais;
+					break;
+			}
+		}
+    state = true;
+	}
+  else if (state)
+  {
+    delay(150);
+    state = false;
+    stop();
+  }
+
+}
+
+
+#endif

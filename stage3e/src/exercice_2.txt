@@ -1,0 +1,24 @@
+#include <Arduino.h>
+
+//définition de la broche de la led (2) à l'aide d'une constante nommée BROCHE_LED
+
+// fonction d'initialisation de la carte arduino
+void setup() {
+  // initialisation de la broche de la led en broche de sortie (pinMode , OUTPUT)
+
+}
+
+void allumerOuEteindreLedPendantUneSeconde(bool allumer) {
+  // allumer ou éteindre la led en fonction de la valeur du paramètre allumer (digitalWrite, HIGH ou LOW)
+  // Utiliser une condition if pour allumer ou éteindre la led
+
+  // attendre une seconde (delay, 1000)
+}
+
+// fonction de boucle de la carte arduino
+void loop() {
+  // allumer la led une seconde (appel de la fonction allumerOuEteindreLedPendantUneSeconde avec le paramètre)
+
+  // éteindre la led une seconde (appel de la fonction allumerOuEteindreLedPendantUneSeconde avec le paramètre)
+
+}

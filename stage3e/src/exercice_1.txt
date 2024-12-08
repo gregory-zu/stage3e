@@ -1,0 +1,21 @@
+#include <Arduino.h>
+
+//définition de la broche de la led (3) à l'aide d'une constante nommée BROCHE_LED
+
+// fonction d'initialisation de la carte arduino
+void setup() {
+  // initialisation de la broche de la led en broche de sortie (pinMode , OUTPUT)
+
+}
+
+// fonction de boucle de la carte arduino
+void loop() {
+  // allumer la led (digitalWrite, HIGH)
+  
+  // attendre une seconde (delay, 1000)
+
+  // éteindre la led (digitalWrite, LOW)
+
+  // attendre une seconde (delay, 1000)
+
+}
